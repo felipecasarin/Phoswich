@@ -6,7 +6,7 @@ from ROOT import TNtuple
 import sys
 
 print('Programa rodando')
-Nmax = 10
+Nmax = 2000
 
 
 def pos0():
@@ -15,7 +15,7 @@ def pos0():
     
     ntuple = data.Get('ntuple')
     
-    test3 = ROOT.TFile.Open( '/home/casarin/Desktop/rootdata/testepequeno.root', 'RECREATE', 'ROOT file with an NTuple' )
+    test3 = ROOT.TFile.Open( '/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'RECREATE', 'ROOT file with an NTuple' )
     ntupleout  = TNtuple( 'ntuple','ntuple','L1:L2:L3:L4:C1:C2:C3:C4:Xh:Yh:Et:Event')
 
  
@@ -51,3 +51,7 @@ def pos0():
     ntupleout.Write()
     test3.Write()
     test3.Close()
+    
+    
+    
+
