@@ -27,6 +27,7 @@ def recaldata(Tab,b,c):
 	return rec
 	
 
+	
 def normdata(Tab):
 	S=np.sum(Tab,axis=3)
 	D=np.zeros((Nx,Ny,2,4))
