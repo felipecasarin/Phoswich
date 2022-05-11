@@ -67,6 +67,15 @@ def PatternError(x,y,LCdat):
 	YE=np.append(YE,YPattern(Ypm,1)-LCdat[1])
 	return YE
 
+def PatternErrorOffset(x,y,LCdat): 
+    xoff = -0.58
+    yoff = 0.63
+    Ypm=YpixModel(x - xoff,y - yoff) # theory
+    YE=YPattern(Ypm,0)-LCdat[0]
+    YE=np.append(YE,YPattern(Ypm,1)-LCdat[1])
+    return YE
+
+
 # fitting functions ****
 def fabc(X,Y_dat,Y_sig):
 	IM.eps=X[0] # sets model parameters for errorfunc eval
@@ -96,10 +105,10 @@ def fbc(X,Y_dat,Y_sig):
 def fb(X,Y_dat,Y_sig):
 	IM.eps=X[0] # sets model parameters for errorfunc eval
 	IM.Ybg=X[1]
-	#a=np.ones((4,4)) # not going to fit a
 	b=np.reshape(X[2:10],(2,4))
 	ExN=ERC.normdata(ERC.recaldata(Y_dat,b,np.zeros((2,4))))# 
-	YTab=Ytable(0,0)
+	#YTab=Ytable(0,0)
+	YTab=Ytable(0.58,-0.63)    
 	#Tab=np.reshape(ExN,(Nx,Ny,2,4))
 	f=np.ravel(errorfunc(0.,0.,ExN,YTab)/abs(Y_sig))[0:328] # drop last experimental point (4l,4c, [328:336])
 	return f
@@ -189,7 +198,7 @@ def fitabc(eps0=0.5,Ybg0=0.0,a=np.ones((4,4)),b=np.ones((2,4)),c=np.zeros((2,4))
 	return result.x
 
 
-def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=0.01): #blim minimum, xylim min/max both x/y
+def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000.): #blim minimum, xylim min/max both x/y
 	#initial values
 	X=np.array([])
 	X=np.append(X,eps0) # initial eps
@@ -228,6 +237,9 @@ def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/m
 	X=np.append(X,eps0) # initial eps
 	X=np.append(X,Ybg0) # initial Ybg
 	X=np.append(X,np.ravel(b))  # initial b's
+	print(X)
+    
+
 	#lower limits:
 	bdi=np.array([0.])
 	bdi=np.append(bdi,0.) 
@@ -240,11 +252,12 @@ def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/m
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds[3]=1.001
 
-	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss = 'cauchy')
-	print(result)
+	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]))
+	#print(result)
 	np.savetxt("par_eps.txt",np.array([result.x[0]]))
 	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
 	np.savetxt("par_b.txt", result.x[2:10])
+	print(result.x)
 	return result.x
 
 
