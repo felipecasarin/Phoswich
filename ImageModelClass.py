@@ -118,3 +118,4 @@ def W(x,y,a,b,D): # Solid angle of rect. with center at x,y, side a (x) and  hei
 IM=ImageModel(0.1,0.,4.2,10.,1.6,1)
 print (IM.YpixModel(0.,0.))
 '''
+
