@@ -16,7 +16,7 @@ intable=np.loadtxt(tabname)
 
 
 xtab=np.array([-5.3,-3.3,-0.3,1.7,4.7])
-ytab=np.array([-5.3,-3.3,-0.3,1.7,4.7,6.7])
+ytab=np.array([-5.3,-3.3,-0.3,1.7,4.7])
 
 
 
