@@ -17,13 +17,23 @@ from array import array
 
 
 
-eps0=0.5
-Ybg0=1.E-4
+#eps0=0.5
+#Ybg0=1.E-4
+
+tab_eps0 = "./par_eps.txt"
+eps0 = np.loadtxt(tab_eps0)
+
+tab_Ybg0 = "./par_eps.txt"
+Ybg0 = np.loadtxt(tab_Ybg0)
 
 #Import of calibration parameters b calculated by fitb() from Fits.py
 tab_b="./par_b.txt"
 
 b=np.loadtxt(tab_b)
+
+tab_c="./par_c.txt"
+
+c=np.loadtxt(tab_c)
 
 IM=IMC.ImageModel(eps0,Ybg0)
 
@@ -37,6 +47,8 @@ ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 #Opens the root file with the data to be processed
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/nicedata.root', 'read')
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/testepequeno.root', 'read') 
+#data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
+#data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point_new.root', 'read')
 data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 
 #Gets the ntuple from the given file
@@ -47,7 +59,7 @@ ntuple = data.Get('ntuple')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_3000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/novotesteconsb.root",'recreate')
-outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point_cauchy.root",'recreate')
+outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_fitbc_offset.root",'recreate')
 
 
 print('Programa rodando')
@@ -56,14 +68,21 @@ print('Programa rodando')
 def fpatxy(X,Y_dat): 
 	x=X[0]
 	y=X[1]
-	f=ft.PatternError(x,y,Y_dat)
+	f=ft.PatternErrorOffset(x,y,Y_dat)
 	return f
 
-def Ytable(xhole,yhole,xoff=0.,yoff=0.,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
-	YT=np.zeros((2,4))
-	#x= x_hole-xoff
-	#y= y_hole-yoff
-	Ypm=IM.YpixModel(xhole,yhole)*a
+
+
+def Ytable(xhole,yhole,xoff=0.58,yoff=-0.63,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
+	YT=np.zeros((2,4))  
+	x= xhole-xoff
+	y= yhole-yoff
+	print(xhole,yhole)
+	print(x,y)        
+	Ypm=IM.YpixModel(x,y)*a
+	Ypm1=IM.YpixModel(xhole,yhole)*a
+	print(Ypm) 
+	print(Ypm1)     
 	YT[0][0:4]=IM.YPattern(Ypm,0,istonorm) #lines
 	YT[1][0:4]=IM.YPattern(Ypm,1,istonorm) #columns       
             
@@ -102,7 +121,7 @@ def fitpatxy(): # pattern fit of x,y
     
     global result
     #Calculates the x and y coordinates of the interaction point of the alpha particle on the phoswich detector
-    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss = 'cauchy')
+    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08)
     #print(result)
     print('--------------------')
     	
@@ -110,20 +129,21 @@ def fitpatxy(): # pattern fit of x,y
 
 def calib(l1,l2,l3,l4,c1,c2,c3,c4):
     
+   
     #Calibrated lines
-    calL1 = l1*b[0]
-    calL2 = l2*b[1]
-    calL3 = l3*b[2]
-    calL4 = l4*b[3]
+    calL1 = (l1 + c[0])*b[0]
+    calL2 = (l2 + c[1])*b[1]
+    calL3 = (l3 + c[2])*b[2]
+    calL4 = (l4 + c[3])*b[3]
     sumL = calL1 + calL2 + calL3 + calL4
     
     
     #Calibrated columns
     
-    calC1 = c1*b[4]
-    calC2 = c2*b[5]
-    calC3 = c3*b[6]
-    calC4 = c4*b[7]
+    calC1 = (c1 + c[4])*b[4]
+    calC2 = (c2 + c[5])*b[5]
+    calC3 = (c3 + c[6])*b[6]
+    calC4 = (c4 + c[7])*b[7]
     sumC = calC1 + calC2 + calC3 + calC4
     
     
@@ -132,14 +152,14 @@ def calib(l1,l2,l3,l4,c1,c2,c3,c4):
     cL2 = calL2/(sumL)
     cL3 = calL3/(sumL)
     cL4 = calL4/(sumL)
-    print('sumcL =',cL1+cL2+cL3+cL4)
+    #print('sumcL =',cL1+cL2+cL3+cL4)
     
     #Normalized and calibrated columns
     cC1 = calC1/(sumC)
     cC2 = calC2/(sumC)
     cC3 = calC3/(sumC)
     cC4 = calC4/(sumC)
-    print('sumcC =',cC1+cC2+cC3+cC4)
+   # print('sumcC =',cC1+cC2+cC3+cC4)
     
 
     global calb
@@ -262,7 +282,7 @@ def pos0():
         Xh = getattr(ntuple, 'Xh')
         Yh = getattr(ntuple, 'Yh')
         
-        #For some reason, the point (5,5) has the order of lines and colunsm swipped, so it's taken care of in this part of the program
+        #For some reason, the point (5,5) has the order of lines and columns swipped, so it's taken care of in this part of the program
         #In future experiments, this part may not be needed
         if Xh == 5 and Yh == 5:
             L1 = getattr(ntuple, 'C1')
@@ -353,6 +373,13 @@ def pos0():
         aYTC4[0] = YT[1][3]
         #print(YT)
         
+        
+        aXp[0] = result.x[0]
+        aYp[0] = result.x[1]
+        aCost[0] = result.cost
+        anfev[0] = result.nfev
+        anjev[0] = result.njev
+        
         YT_fit = Ytable(aXp[0],aYp[0])
         aYTL1_fit[0] = YT_fit[0][0]
         aYTL2_fit[0] = YT_fit[0][1]
@@ -364,15 +391,11 @@ def pos0():
         aYTC4_fit[0] = YT_fit[1][3]
         #print(YT_fit)
         
-        
-        aXp[0] = result.x[0]
-        aYp[0] = result.x[1]
-        aCost[0] = result.cost
-        anfev[0] = result.nfev
-        anjev[0] = result.njev
+    
        
         #Fills the Tree with the data of the given event
         tree.Fill()
+       
     
     
     tree.SetDirectory(0)
@@ -387,4 +410,4 @@ def pos0():
     outfile.Write()
     outfile.Close()
     
-    #Congratulations, it's the end of the program
+    #Congratulations! It's the end of the program
