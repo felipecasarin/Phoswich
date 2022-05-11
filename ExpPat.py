@@ -150,3 +150,7 @@ def DataSetSumC():
 		for iytab in range(0,Ny):
 			s=s+sumC(ixtab,iytab)
 	return s #42251.22
+
+
+
+
