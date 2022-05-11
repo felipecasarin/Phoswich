@@ -3,7 +3,7 @@ from array import array
 
 def plot(entryNum):
 
-    file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/fit_2000_entries_per_point_newB.root','read')
+    file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/fit_2000_fitbc_new.root','read')
     #file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/novotesteconsb.root','read')
     
     t = file.tree
