@@ -240,7 +240,7 @@ def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/m
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds[3]=1.001
 
-	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]))
+	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss = 'cauchy')
 	print(result)
 	np.savetxt("par_eps.txt",np.array([result.x[0]]))
 	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
