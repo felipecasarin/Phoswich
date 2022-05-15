@@ -35,6 +35,8 @@ tab_c="./par_c.txt"
 
 c=np.loadtxt(tab_c)
 
+#c = np.array([0,0,0,0,0,0,0,0])
+
 IM=IMC.ImageModel(eps0,Ybg0)
 
 Lpitch = 4.2
@@ -49,7 +51,7 @@ ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/testepequeno.root', 'read') 
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point_new.root', 'read')
-data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
+data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/300_entries_per_point.root', 'read')
 
 #Gets the ntuple from the given file
 ntuple = data.Get('ntuple')
@@ -59,7 +61,7 @@ ntuple = data.Get('ntuple')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_3000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/novotesteconsb.root",'recreate')
-outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_fitbc_offset.root",'recreate')
+outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_300_fitbc.root",'recreate')
 
 
 print('Programa rodando')
@@ -68,7 +70,7 @@ print('Programa rodando')
 def fpatxy(X,Y_dat): 
 	x=X[0]
 	y=X[1]
-	f=ft.PatternErrorOffset(x,y,Y_dat)
+	f=ft.PatternError(x,y,Y_dat)
 	return f
 
 
