@@ -97,7 +97,7 @@ def fbc(X,Y_dat,Y_sig):
 	b=np.reshape(X[2:10],(2,4))
 	c=np.reshape(X[10:18],(2,4))
 	ExN=ERC.normdata(ERC.recaldata(Y_dat,b,c))# 
-	YTab=Ytable(0,0)
+	YTab=Ytable(0.,0.)
 	#Tab=np.reshape(ExN,(Nx,Ny,2,4))
 	f=np.ravel(errorfunc(0.,0.,ExN,YTab)/abs(Y_sig))[0:328] # drop last experimental point (4l,4c, [328:336])
 	return f
