@@ -12,17 +12,14 @@ particularized to phoswich where interaction is at surface at height h from
 4 x 4 SiPM array device.
 '''
 class ImageModel:
-    def __init__(self,eps=0.1,Ybg=0.,Lpitch=4.2,h=10.,n1=1.6,n2=1.,absl=30): # pixel array pitch and model parameters		
+    def __init__(self,eps=0.1,Ybg=0.,Lpitch=4.2,h=10.,n1=1.6,n2=1.): # pixel array pitch and model parameters		
         self.eps=eps
         self.Ybg=Ybg
-        self.absl=absl
         self.Lpitch=Lpitch
         self.h=h
         self.thcrit=asin(n2/n1)
         self.ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 
-
-		
 
 	#images:
     def iplus(self,x):
@@ -48,7 +45,7 @@ class ImageModel:
         il=[self.image(x,y,0)]
         for f in range(1,4):
             il.append(self.image(x,y,f))
-            return il
+        return il		#########
 	
     def imagelist2(self,x,y):
         il=[]
@@ -145,4 +142,3 @@ def W(x,y,a,b,D): # Solid angle of rect. with center at x,y, side a (x) and  hei
 IM=ImageModel(0.1,0.,4.2,10.,1.6,1)
 print (IM.YpixModel(0.,0.))
 '''
-
