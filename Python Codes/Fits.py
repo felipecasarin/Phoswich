@@ -215,13 +215,13 @@ def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000
 	#upper limits:
 	bds=np.array([])
 	bds=np.append(bds,1.)
-	bds=np.append(bds,0.0001)
+	bds=np.append(bds,0.01)
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds=np.append(bds,np.ones((8))*(clim))
 	bds[3]=1.001
 	bds[11]=0.01
 
-	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]))
+	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='cauchy')
 	print(result)
 	np.savetxt("par_eps.txt",np.array([result.x[0]]))
 	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
@@ -248,7 +248,7 @@ def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/m
 	#upper limits:
 	bds=np.array([])
 	bds=np.append(bds,1.)
-	bds=np.append(bds,0.0001)
+	bds=np.append(bds,0.2)
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds[3]=1.001
 
