@@ -11,6 +11,9 @@ import scipy as sp
 from scipy.optimize import least_squares
 
 
+#Teste
+
+
 #list of experimental data point positions
 xtab=EX.xtab
 ytab=EX.ytab
