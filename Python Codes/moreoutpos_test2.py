@@ -51,7 +51,7 @@ ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/testepequeno.root', 'read') 
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point_new.root', 'read')
-data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/300_entries_per_point.root', 'read')
+data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 
 #Gets the ntuple from the given file
 ntuple = data.Get('ntuple')
@@ -61,7 +61,7 @@ ntuple = data.Get('ntuple')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_3000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/novotesteconsb.root",'recreate')
-outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_300_fitbc.root",'recreate')
+outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/Fitting_test/fit_2000_fitbc_2cauchy_lsmr_highfix.root",'recreate')
 
 
 print('Programa rodando')
@@ -123,7 +123,7 @@ def fitpatxy(): # pattern fit of x,y
     
     global result
     #Calculates the x and y coordinates of the interaction point of the alpha particle on the phoswich detector
-    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08)
+    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss='cauchy')
     #print(result)
     print('--------------------')
     	

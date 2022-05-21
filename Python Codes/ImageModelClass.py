@@ -2,6 +2,7 @@
 from __future__ import division 
 from math import *
 import numpy as np
+import math as m
 import matplotlib.pyplot as plt
 from numpy import cross, eye, dot
 
@@ -17,7 +18,7 @@ class ImageModel:
         self.Ybg=Ybg
         self.Lpitch=Lpitch
         self.h=h
-        self.thcrit=asin(n2/n1)
+        self.thcrit=m.asin(n2/n1)
         self.ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 
 
@@ -62,7 +63,7 @@ class ImageModel:
         return il
 		
     def Threfl(self,xi,yi,xl,yl):
-        return atan(self.h/sqrt(pow(xi-xl,2)+pow(yi-yl,2)))
+        return m.atan(self.h/m.sqrt(pow(xi-xl,2)+pow(yi-yl,2)))
 
     def fRefl(self,xi,yi,xl,yl):
 		#if(self.Threfl(xi,yi,xl,yl)>self.thcrit):
@@ -126,7 +127,7 @@ class ImageModel:
 def Wel(x,y,D): # Solid angle of "elementary" rectangle with center at x,y and corner at 0,0
 	alfa=2.*x/D
 	beta=2.*y/D
-	return atan(alfa*beta/sqrt(1+alfa*alfa+beta*beta)) # negative, if x*y<0
+	return m.atan(alfa*beta/m.sqrt(1+alfa*alfa+beta*beta)) # negative, if x*y<0
 
 def W(x,y,a,b,D): # Solid angle of rect. with center at x,y, side a (x) and  height b (y) 
 	sx=abs(x)/2.
@@ -142,3 +143,4 @@ def W(x,y,a,b,D): # Solid angle of rect. with center at x,y, side a (x) and  hei
 IM=ImageModel(0.1,0.,4.2,10.,1.6,1)
 print (IM.YpixModel(0.,0.))
 '''
+

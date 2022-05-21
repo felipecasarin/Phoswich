@@ -11,9 +11,6 @@ import scipy as sp
 from scipy.optimize import least_squares
 
 
-#Teste
-
-
 #list of experimental data point positions
 xtab=EX.xtab
 ytab=EX.ytab
@@ -203,6 +200,7 @@ def fitabc(eps0=0.5,Ybg0=0.0,a=np.ones((4,4)),b=np.ones((2,4)),c=np.zeros((2,4))
 
 def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000.): #blim minimum, xylim min/max both x/y
 	#initial values
+	c.fill(150)
 	X=np.array([])
 	X=np.append(X,eps0) # initial eps
 	X=np.append(X,Ybg0) # initial Ybg
@@ -214,7 +212,7 @@ def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000
 	bdi=np.append(bdi,np.ones((8))/blim) 
 	bdi=np.append(bdi,np.ones((8))*(-clim)) 	
 	bdi[3]=0.999
-	bdi[11]=-0.01 # effectively fixes b,c for this line
+	bdi[12]=140 # effectively fixes b,c for this line
 	#upper limits:
 	bds=np.array([])
 	bds=np.append(bds,1.)
@@ -222,9 +220,47 @@ def fitbc(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds=np.append(bds,np.ones((8))*(clim))
 	bds[3]=1.001
-	bds[11]=0.01
+	bds[12]=160
 
-	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='cauchy')
+	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='soft_l1')
+	print(result)
+	np.savetxt("par_eps.txt",np.array([result.x[0]]))
+	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
+	np.savetxt("par_b.txt", result.x[2:10])
+	np.savetxt("par_c.txt", result.x[10:18])
+	return result.x
+
+#****     
+
+def newfitbc(eps0=0.5,Ybg0=0.005,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000.): #blim minimum, xylim min/max both x/y
+	#initial values
+	c.fill(100.)
+	X=np.array([])
+	X=np.append(X,eps0) # initial eps
+	X=np.append(X,Ybg0) # initial Ybg
+	X=np.append(X,np.ravel(b))  # initial b's
+	X=np.append(X,np.ravel(c))  # initial c's
+	#lower limits:
+	bdi=np.array([0.])
+	bdi=np.append(bdi,0.) 
+	bdi=np.append(bdi,np.ones((8))/blim) 
+	bdi=np.append(bdi,np.ones((8))*(-clim)) 	
+	bdi[3]=0.999
+	bdi[11]=100. # effectively fixes b,c for this line
+	#upper limits:
+	bds=np.array([])
+	bds=np.append(bds,1.)
+	bds=np.append(bds,0.01)
+	bds=np.append(bds,np.ones((8))*blim) 
+	bds=np.append(bds,np.ones((8))*(clim))
+	bds[3]=1.001
+	bds[11]=110.
+	#bds[1]=0.01
+
+	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='cauchy', tr_solver='lsmr')
+    ##Configurar f_scale e explorar outras configurações##
+    ##loss arctan?##
+    ##Tentar methods diferentes##
 	print(result)
 	np.savetxt("par_eps.txt",np.array([result.x[0]]))
 	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
@@ -255,7 +291,7 @@ def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/m
 	bds=np.append(bds,np.ones((8))*blim) 
 	bds[3]=1.001
 
-	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]))
+	result = sp.optimize.least_squares(fb,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='cauchy')
 	#print(result)
 	np.savetxt("par_eps.txt",np.array([result.x[0]]))
 	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
