@@ -1,9 +1,21 @@
 import ROOT
 from array import array
+import numpy as np
+
+tab_bad_event = "./bad_event.txt"
+bad_event = np.loadtxt(tab_bad_event)
+n_event = np.size(bad_event)
+
+
+def plot_all():
+    n = 0.
+    while n <= n_event:
+        plot(n_event)
+        n = n + 1
 
 def plot(entryNum):
 
-    file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/fit_2000_fitbc_new.root','read')
+    file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/Fitting_test/fit_2000_fitbc_2cauchy_lsmr_highfix.root','read')
     #file = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/novotesteconsb.root','read')
     
     t = file.tree
