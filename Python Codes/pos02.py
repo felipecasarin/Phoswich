@@ -6,7 +6,8 @@ from ROOT import TNtuple
 import sys
 
 print('Programa rodando')
-Nmax = 2000
+Nmax = 100
+
 
 
 def pos0():
@@ -15,7 +16,7 @@ def pos0():
     
     ntuple = data.Get('ntuple')
     
-    test3 = ROOT.TFile.Open( '/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'RECREATE', 'ROOT file with an NTuple' )
+    test3 = ROOT.TFile.Open( '/home/casarin/Desktop/rootdata/100_entries_noborder', 'RECREATE', 'ROOT file with an NTuple' )
     ntupleout  = TNtuple( 'ntuple','ntuple','L1:L2:L3:L4:C1:C2:C3:C4:Xh:Yh:Et:Event')
 
  
@@ -35,12 +36,17 @@ def pos0():
         Yh = getattr(ntuple, 'Yh')
         Et = getattr(ntuple, 'Et')
         Event = getattr(ntuple, 'Event')
+        SumL = L1 + L2 + L3 + L4
+        SumC = C1 + C2 + C3 + C4
     
         #Manual cut
+        #if Event < Nmax and (C1+C2+C3+C4 < 1500) and (C1+C2+C3+C4 > 650) and Et > 550 and Et < 1800:
         if Event < Nmax and (C1+C2+C3+C4 < 1500) and (C1+C2+C3+C4 > 650) and Et > 550 and Et < 1800:
           print('ok')
-          ntupleout.Fill(L1,L2,L3,L4,C1,C2,C3,C4,Xh,Yh,Et,Event)
-    
+          #if L1/SumL > 0.05 and L2/SumL > 0.05 and L3/SumL > 0.05 and L4/SumL > 0.05 and L1/SumL < 0.39 and L2/SumL < 0.39 and L3/SumL < 0.39 and L4/SumL < 0.39 and C1/SumC > 0.05 and C2/SumC > 0.05 and C3/SumC > 0.05 and C4/SumC > 0.05 and C1/SumC < 0.39 and C2/SumC < 0.39 and C3/SumC < 0.39 and C4/SumC < 0.39:
+          if Xh > 0 and Yh > 0 and Xh < 15 and Yh < 15:
+              ntupleout.Fill(L1,L2,L3,L4,C1,C2,C3,C4,Xh,Yh,Et,Event)
+          
     
     ntupleout.SetDirectory(0)
     
