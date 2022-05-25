@@ -4,14 +4,15 @@ import numpy as np
 
 tab_bad_event = "./bad_event.txt"
 bad_event = np.loadtxt(tab_bad_event)
-n_event = np.size(bad_event)
+n_max = np.size(bad_event)
 
 
 def plot_all():
-    n = 0.
-    while n <= n_event:
-        plot(n_event)
-        n = n + 1
+    n = 0
+    for n in range (0, n_max):
+        ne = int(bad_event[n])
+        plot(ne)
+    return n
 
 def plot(entryNum):
 
