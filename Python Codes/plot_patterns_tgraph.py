@@ -67,7 +67,7 @@ def plot(entryNum):
     tot1 = L1+L2+L3+L4
     tot2 = C1+C2+C3+C4
     title = str("(Xh,Yh)="+"("+str(Xh)+","+str(Yh)+")")
-    en = str("entry"+str(entryNum))
+    en = str("entry"+str(entryNum)+str(".png"))
     c1 = ROOT.TCanvas(en,title,1000,500)
     #c1.SeTitle(Xh,',',Yh)
     yl = array('f',[L1/tot1,L2/tot1,L3/tot1,L4/tot1])
@@ -184,5 +184,6 @@ def plot(entryNum):
     c1.Update()
 	
     c1.Draw()
-    c1.Print()
+    #c1.Print()
+    c1.SaveAs(en)
     print('Imagem salva no diretório')
