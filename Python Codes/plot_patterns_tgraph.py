@@ -1,10 +1,27 @@
 import ROOT
 from array import array
 import numpy as np
+import ImageModelClass as IMC
+import moreoutpos_test2 as mp
 
 tab_bad_event = "./bad_event.txt"
 bad_event = np.loadtxt(tab_bad_event)
 n_max = np.size(bad_event)
+
+tab_eps0 = "./par_eps.txt"
+eps0 = np.loadtxt(tab_eps0)
+
+tab_Ybg0 = "./par_eps.txt"
+Ybg0 = np.loadtxt(tab_Ybg0)
+
+IM=IMC.ImageModel(eps0,Ybg0)
+
+Lpitch = 4.2
+
+ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
+
+IM.eps=np.loadtxt("par_eps.txt") ##I dont know why this had to be included, but without it, the function does not work properly
+IM.Ybg=np.loadtxt("par_Ybg0.txt") ##I dont know why this had to be included, but without it, the function does not work properly
 
 
 def plot_all():
@@ -181,6 +198,93 @@ def plot(entryNum):
     gr1222.SetLineColor(4)
     gr1222.Draw('PL')
 	
+    c1.Update()
+	
+    c1.Draw()
+    #c1.Print()
+    c1.SaveAs(en)
+    print('Imagem salva no diretório')
+
+def plotxy(Xh,Yh):
+
+    title = str("(Xh,Yh)="+"("+str(Xh)+","+str(Yh)+")")
+    en = str("plot"+str(Xh)+str(Yh)+str(".png"))
+    c1 = ROOT.TCanvas(en,title,1000,500)
+    #c1.SeTitle(Xh,',',Yh)
+    
+    YT = mp.Ytable(Xh, Yh,xoff=-0.9,yoff=-0.63,istonorm=1,a=np.ones((4,4)))
+    print(Xh)
+    print(Yh)
+    print(YT)
+   
+    yl = array('f',[YT[0][0], YT[0][1],YT[0][2],YT[0][3]])
+    yc = array('f',[YT[1][0], YT[1][1],YT[1][2],YT[1][3]])
+    
+    pitch = array('f',[-6.3,-2.1,2.1,6.3])
+	
+	
+    pad1 = ROOT.TPad('pad1','This is pad1',0,0,0.48,1,0)
+    pad2 = ROOT.TPad('pad2','This is pad2',0.52,0,1,1,0)
+	
+    pad1.SetRightMargin(0.09);  
+    pad1.SetLeftMargin(0.15);
+    pad1.SetBottomMargin(0.15);
+	
+    pad2.SetRightMargin(0.09);
+    pad2.SetLeftMargin(0.15);
+    pad2.SetBottomMargin(0.15);
+    	
+    pad1.Draw()
+    pad2.Draw()
+	
+	###################################################
+	#Dados Experimentais das Linhas
+	
+    pad1.cd()
+    
+    gr11 = ROOT.TGraph(4,pitch,yl)
+    ax11 = gr11.GetYaxis()
+    ax11.SetRangeUser(0.,0.5)
+    ax11.SetTitle("Yield normalizado")
+    ax12 = gr11.GetXaxis()
+    ax12.SetRangeUser(-7.,7.)
+    ax12.SetTitle("Coordenadas y dos centros das linhas (mm)")
+    gr11.SetMarkerStyle(20)
+    gr11.SetMarkerSize(1)
+    gr11.SetMarkerColor(2)
+    gr11.SetLineColor(2)
+    gr11.SetTitle('Pattern das linhas')
+    
+    gr11.Draw('APL')
+
+    
+    c1.Update()
+	
+	
+	
+	###################################################
+	#Dados Experimentais das Colunas
+	
+    pad2.cd()
+    
+    gr21 = ROOT.TGraph(4,pitch,yc)
+    ax21 = gr21.GetYaxis()
+    ax21.SetRangeUser(0.,0.5)
+    ax21.SetTitle("Yield normalizado")
+    ax22 = gr21.GetXaxis()
+    ax22.SetRangeUser(-7.,7.)
+    ax22.SetTitle("Coordenadas x dos centros das colunas (mm)")
+    
+    ax21.Draw()
+    gr21.SetMarkerStyle(20)
+    gr21.SetMarkerSize(1)
+    gr21.SetMarkerColor(2)
+    gr21.SetLineColor(2)
+    gr21.SetTitle('Pattern das colunas')
+    
+    gr21.Draw('APL')
+    
+ 
     c1.Update()
 	
     c1.Draw()
