@@ -94,9 +94,9 @@ class ImageModel:
         for xy in self.imagelist1(x,y): # first reflections
             (xi,yi)=xy	
             Y=Y+self.fRefl(xi,yi,xl,yl)*W(xi-xl,yi-yl,1.,1.,self.h)      #Colocar uma função de absorção com fator de absorção minimizado também
-        for xy in self.imagelist2(x,y): # second reflections
-            (xi,yi)=xy
-            Y=Y+pow(self.fRefl(xi,yi,xl,yl),2)*W(xi-xl,yi-yl,1.,1.,self.h)
+        #for xy in self.imagelist2(x,y): # second reflections
+         #   (xi,yi)=xy
+         #   Y=Y+pow(self.fRefl(xi,yi,xl,yl),2)*W(xi-xl,yi-yl,1.,1.,self.h)
         return Y
     '''
     def Yield(self,x,y,xl,yl): # Y at pixel xl, yl
@@ -118,6 +118,7 @@ class ImageModel:
         S=1.
         if istonormalize:
             S=np.sum(Ypat)
+        #print(Ypat/S)
         return Ypat/S
 
 
