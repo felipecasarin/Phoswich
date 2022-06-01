@@ -14,11 +14,13 @@ import Fits as ft
 from scipy.optimize import least_squares
 from ROOT import TFile, TTree, gROOT, addressof
 from array import array
+from scipy import linalg
 
 
 
 #eps0=0.5
 #Ybg0=1.E-4
+
 
 tab_eps0 = "./par_eps.txt"
 eps0 = np.loadtxt(tab_eps0)
@@ -51,7 +53,7 @@ ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/testepequeno.root', 'read') 
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point_new.root', 'read')
-data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
+data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries.root', 'read')
 
 #Gets the ntuple from the given file
 ntuple = data.Get('ntuple')
@@ -61,7 +63,7 @@ ntuple = data.Get('ntuple')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_3000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/novotesteconsb.root",'recreate')
-outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/Fitting_test/fit_2000_fitbc_2cauchy_lsmr_highfix.root",'recreate')
+outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/Fitting_test/fit_2000_entries_teste",'recreate')
 
 
 print('Programa rodando')
@@ -75,19 +77,16 @@ def fpatxy(X,Y_dat):
 
 
 
-def Ytable(xhole,yhole,xoff=0.58,yoff=-0.63,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
+def Ytable(xhole,yhole,xoff=-0.9,yoff=-0.63,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
 	YT=np.zeros((2,4))  
 	x= xhole-xoff
 	y= yhole-yoff
-	print(xhole,yhole)
 	print(x,y)        
-	Ypm=IM.YpixModel(x,y)*a
-	Ypm1=IM.YpixModel(xhole,yhole)*a
-	print(Ypm) 
-	print(Ypm1)     
+	Ypm=IM.YpixModel(x,y)*a    
 	YT[0][0:4]=IM.YPattern(Ypm,0,istonorm) #lines
-	YT[1][0:4]=IM.YPattern(Ypm,1,istonorm) #columns       
-            
+	YT[1][0:4]=IM.YPattern(Ypm,1,istonorm) #columns  
+	#print('break') 
+	print(YT)       
 	return YT
 
 def fitpatxy(): # pattern fit of x,y
@@ -123,10 +122,10 @@ def fitpatxy(): # pattern fit of x,y
     
     global result
     #Calculates the x and y coordinates of the interaction point of the alpha particle on the phoswich detector
-    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss='cauchy')
-    #print(result)
+    result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss='cauchy', tr_solver='lsmr')
+    print(result)
     print('--------------------')
-    	
+    
     return result.x
 
 def calib(l1,l2,l3,l4,c1,c2,c3,c4):
@@ -173,7 +172,6 @@ def calib(l1,l2,l3,l4,c1,c2,c3,c4):
 
 
 def pos0():
-    
     #Creates the Tree in which the new data will be saved
     tree  = ROOT.TTree( 'tree','tree')
     
@@ -271,12 +269,13 @@ def pos0():
     bYTC2_fit = tree.Branch('YTC2_fit',aYTC2_fit,'YTC2_fit/F')
     bYTC3_fit = tree.Branch('YTC3_fit',aYTC3_fit,'YTC3_fit/F')
     bYTC4_fit = tree.Branch('YTC4_fit',aYTC4_fit,'YTC4_fit/F')
-    
+     
     
     
     #Gets the variables event from event
     for entryNum in range(0, ntuple.GetEntries()):    
         ntuple.GetEntry(entryNum)
+        
         
         print('-------------------------------')
         print(entryNum)
@@ -331,6 +330,10 @@ def pos0():
            
             
         calib(L1,L2,L3,L4,C1,C2,C3,C4)
+        #################################### 
+        #teste = Ytable(7.,-3.)
+        #print("TESTE")
+        #################################### 
        
         global newExN
         
@@ -361,8 +364,14 @@ def pos0():
         aYt[0] = Yh - 8.3
         aEt[0] = Et
         
+        #teste = Ytable(7.,-3.)
+        #print("TESTE")
+        
         #Executes the optimize least squared routine and stores the useful information on given pointers
         xypat = fitpatxy()
+        
+        teste = Ytable(7.,-3.)
+        print("TESTE")
         
         YT = Ytable(aXt[0],aYt[0])
         aYTL1[0] = YT[0][0]
@@ -373,7 +382,8 @@ def pos0():
         aYTC2[0] = YT[1][1]
         aYTC3[0] = YT[1][2]
         aYTC4[0] = YT[1][3]
-        #print(YT)
+        print(aXt[0],aYt[0])
+        print(YT)
         
         
         aXp[0] = result.x[0]
@@ -391,7 +401,8 @@ def pos0():
         aYTC2_fit[0] = YT_fit[1][1]
         aYTC3_fit[0] = YT_fit[1][2]
         aYTC4_fit[0] = YT_fit[1][3]
-        #print(YT_fit)
+        print("YT_fit")
+        print(YT_fit)
         
     
        
