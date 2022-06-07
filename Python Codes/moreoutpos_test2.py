@@ -53,7 +53,7 @@ ruler=Lpitch*np.array([-1.5,-0.5,0.5,1.5])
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/testepequeno.root', 'read') 
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point.root', 'read')
 #data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries_per_point_new.root', 'read')
-data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/2000_entries.root', 'read')
+data = ROOT.TFile.Open('/home/casarin/Desktop/rootdata/300_entries.root', 'read')
 
 #Gets the ntuple from the given file
 ntuple = data.Get('ntuple')
@@ -63,7 +63,7 @@ ntuple = data.Get('ntuple')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_3000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/fit_2000_entries_per_point.root",'recreate')
 #outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/novotesteconsb.root",'recreate')
-outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/Fitting_test/fit_2000_entries_teste",'recreate')
+outfile =  ROOT.TFile("/home/casarin/Desktop/rootdata/Fitting_test/fit_300_newoffset2.root",'recreate')
 
 
 print('Programa rodando')
@@ -72,12 +72,12 @@ print('Programa rodando')
 def fpatxy(X,Y_dat): 
 	x=X[0]
 	y=X[1]
-	f=ft.PatternError(x,y,Y_dat)
+	f=ft.PatternErrorOffset(x,y,Y_dat)   #<====PatternErrorOffset??
 	return f
 
 
 
-def Ytable(xhole,yhole,xoff=-0.9,yoff=-0.63,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
+def Ytable(xhole,yhole,xoff=-0.4565,yoff=-0.0122,istonorm=1,a=np.ones((4,4))): # theoretical yields calculated using the hole position (xhole,yhole)
 	YT=np.zeros((2,4))  
 	x= xhole-xoff
 	y= yhole-yoff
@@ -123,9 +123,37 @@ def fitpatxy(): # pattern fit of x,y
     global result
     #Calculates the x and y coordinates of the interaction point of the alpha particle on the phoswich detector
     result = sp.optimize.least_squares(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss='cauchy', tr_solver='lsmr')
+    #result = sp.optimize.leastsq(fpatxy,X,bounds=(bdi,bds),args = ([newExN[0:2]]), ftol=1e-08, xtol=1e-08, gtol=1e-08, loss='cauchy', tr_solver='lsmr')
     print(result)
     print('--------------------')
+    '''
+    chi2dof = np.sum(result.fun**2)/(result.fun.size - result.x.size)
+    cov = chi2dof
+    perr = np.sqrt(cov)
+    print("sigma")
+    print(perr)
+
+    '''
+    J1 = result.jac
+    print("Jacobiano.transpose")
+    print(J1)
+    #print('*------------------*')
+    #print(J[1])
+    J1t = J1.transpose()
+    hess = np.dot(J1t,J1)
+    cov = linalg.inv(hess)
+    var = np.sqrt(np.diagonal(cov))
+    scalecov = cov*(result.cost)
+    print("var")
+    print(var)
     
+    global unc
+    
+    unc = np.sqrt(np.diagonal(scalecov))
+    
+    #print("uncertainty")
+    #print(unc)
+
     return result.x
 
 def calib(l1,l2,l3,l4,c1,c2,c3,c4):
@@ -222,6 +250,8 @@ def pos0():
     aYTC2_fit = array('f',[0])
     aYTC3_fit = array('f',[0])
     aYTC4_fit = array('f',[0])
+    auncertx = array('f',[0])
+    auncerty = array('f',[0])
     
     
     
@@ -269,6 +299,8 @@ def pos0():
     bYTC2_fit = tree.Branch('YTC2_fit',aYTC2_fit,'YTC2_fit/F')
     bYTC3_fit = tree.Branch('YTC3_fit',aYTC3_fit,'YTC3_fit/F')
     bYTC4_fit = tree.Branch('YTC4_fit',aYTC4_fit,'YTC4_fit/F')
+    buncertx = tree.Branch('uncertx',auncertx,'uncertx/F')
+    buncerty = tree.Branch('uncerty',auncerty,'uncerty/F')
      
     
     
@@ -370,8 +402,6 @@ def pos0():
         #Executes the optimize least squared routine and stores the useful information on given pointers
         xypat = fitpatxy()
         
-        teste = Ytable(7.,-3.)
-        print("TESTE")
         
         YT = Ytable(aXt[0],aYt[0])
         aYTL1[0] = YT[0][0]
@@ -382,6 +412,8 @@ def pos0():
         aYTC2[0] = YT[1][1]
         aYTC3[0] = YT[1][2]
         aYTC4[0] = YT[1][3]
+        auncertx[0] = unc[0]
+        auncerty[0] = unc[1]
         print(aXt[0],aYt[0])
         print(YT)
         
