@@ -68,9 +68,9 @@ def PatternError(x,y,LCdat):
 	return YE
 
 def PatternErrorOffset(x,y,LCdat): 
-    xoff = -0.58
-    yoff = 0.63
-    Ypm=YpixModel(x - xoff,y - yoff) # theory
+    xoff = -0.4565
+    yoff = -0.0122
+    Ypm=YpixModel(x + xoff,y + yoff) # theory
     YE=YPattern(Ypm,0)-LCdat[0]
     YE=np.append(YE,YPattern(Ypm,1)-LCdat[1])
     return YE
@@ -97,7 +97,7 @@ def fbc(X,Y_dat,Y_sig):
 	b=np.reshape(X[2:10],(2,4))
 	c=np.reshape(X[10:18],(2,4))
 	ExN=ERC.normdata(ERC.recaldata(Y_dat,b,c))# 
-	YTab=Ytable(0.,0.)
+	YTab=Ytable(0.,0.)     #Offset vem aqui      <=====================
 	#Tab=np.reshape(ExN,(Nx,Ny,2,4))
 	f=np.ravel(errorfunc(0.,0.,ExN,YTab)/abs(Y_sig))[0:328] # drop last experimental point (4l,4c, [328:336])
 	return f
@@ -108,7 +108,7 @@ def fb(X,Y_dat,Y_sig):
 	b=np.reshape(X[2:10],(2,4))
 	ExN=ERC.normdata(ERC.recaldata(Y_dat,b,np.zeros((2,4))))# 
 	#YTab=Ytable(0,0)
-	YTab=Ytable(0.58,-0.63)    
+	YTab=Ytable(-0.1017,0.05606)    
 	#Tab=np.reshape(ExN,(Nx,Ny,2,4))
 	f=np.ravel(errorfunc(0.,0.,ExN,YTab)/abs(Y_sig))[0:328] # drop last experimental point (4l,4c, [328:336])
 	return f
@@ -262,12 +262,68 @@ def newfitbc(eps0=0.5,Ybg0=0.005,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,cli
     ##loss arctan?##
     ##Tentar methods diferentes##
 	print(result)
-	np.savetxt("par_eps.txt",np.array([result.x[0]]))
-	np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
-	np.savetxt("par_b.txt", result.x[2:10])
-	np.savetxt("par_c.txt", result.x[10:18])
+	#np.savetxt("par_eps.txt",np.array([result.x[0]]))
+	#np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
+	#np.savetxt("par_b.txt", result.x[2:10])
+	#np.savetxt("par_c.txt", result.x[10:18])
 	return result.x
 
+def newfitbc1(eps0=0.5,Ybg0=0.005,b=np.ones((2,4)),c=np.zeros((2,4)),blim=10.,clim=1000.): #blim minimum, xylim min/max both x/y
+	#initial values
+	c.fill(100.)
+	X=np.array([])
+	X=np.append(X,eps0) # initial eps
+	X=np.append(X,Ybg0) # initial Ybg
+	X=np.append(X,np.ravel(b))  # initial b's
+	X=np.append(X,np.ravel(c))  # initial c's
+	#lower limits:
+	bdi=np.array([0.])
+	bdi=np.append(bdi,0.) 
+	bdi=np.append(bdi,np.ones((8))/blim) 
+	bdi=np.append(bdi,np.ones((8))*(-clim)) 	
+	bdi[3]=0.999
+	bdi[11]=100. # effectively fixes b,c for this line
+	#upper limits:
+	bds=np.array([])
+	bds=np.append(bds,1.)
+	bds=np.append(bds,0.01)
+	bds=np.append(bds,np.ones((8))*blim) 
+	bds=np.append(bds,np.ones((8))*(clim))
+	bds[3]=1.001
+	bds[11]=110.
+	#bds[1]=0.01
+
+	result = sp.optimize.least_squares(fbc,X,bounds=(bdi,bds),args = ([ExDataTab,ExN*RelErrorDat]), loss='cauchy', tr_solver='lsmr')
+    ##Configurar f_scale e explorar outras configurações##
+    ##loss arctan?##
+    ##Tentar methods diferentes##
+	print(result)
+	#np.savetxt("par_eps.txt",np.array([result.x[0]]))
+	#np.savetxt("par_Ybg0.txt",np.array([result.x[1]]))
+	#np.savetxt("par_b.txt", result.x[2:10])
+	#np.savetxt("par_c.txt", result.x[10:18])
+
+    
+'''    
+    J1 = result.jac
+    print("Jacobiano.transpose")
+    print(J1)
+    #print('*------------------*')
+    #print(J[1])
+    J1t = J1.transpose()
+    hess = np.dot(J1t,J1)
+    cov = linalg.inv(hess)
+    var = np.sqrt(np.diagonal(cov))
+    scalecov = cov*(result.cost)
+    print("var")
+    print(var)
+    
+    global unc
+    
+    unc = np.sqrt(np.diagonal(scalecov))
+    
+	return result.x
+'''
 #****     
 
 def fitb(eps0=0.5,Ybg0=0.,b=np.ones((2,4)),blim=10.): #blim minimum, xylim min/max both x/y
