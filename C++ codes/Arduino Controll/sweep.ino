@@ -4,8 +4,8 @@ int DIR1=6; //define Direction pin
 int PUL2=9; //define Pulse pin
 int DIR2=10; //define Direction pin
 
-int TTL_S=12;
-int TTL_L=13;
+int TTL_S=12; //define Short TTL pin
+int TTL_L=13; //define Long TTL pin
 
 void ttl_short(){
     digitalWrite(TTL_S,HIGH);
@@ -83,7 +83,9 @@ void setup() {
       for_x();
       ttl_long_on();		//Start long TTL pulse (up)
       ttl_short();		//One 1us signal before starting acquisition
+      
       delay(1000);		//Data acquisition time
+      
       ttl_short();		//One 1us signal to finish acquisition
       ttl_long_off();		//Finish long TTL pulse (down)
       
